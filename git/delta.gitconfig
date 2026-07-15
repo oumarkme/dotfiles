@@ -1,0 +1,14 @@
+# dotfiles/git/delta.gitconfig
+# Included from ~/.gitconfig via: git config --global include.path
+# (install.sh sets this up; your own ~/.gitconfig is not overwritten).
+
+[core]
+    pager = delta
+[interactive]
+    diffFilter = delta --color-only
+[delta]
+    navigate = true
+    line-numbers = true
+    syntax-theme = ansi        # follows the terminal's GitHub Dark palette
+[merge]
+    conflictStyle = zdiff3

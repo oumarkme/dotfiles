@@ -1,0 +1,6 @@
+# dotfiles/ghostty/config — macOS & native Linux (not used on WSL)
+theme = GitHub-Dark
+font-family = JetBrainsMono Nerd Font
+font-size = 14
+window-padding-x = 8
+window-padding-y = 6

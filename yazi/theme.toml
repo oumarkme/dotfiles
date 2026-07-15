@@ -1,0 +1,6 @@
+# dotfiles/yazi/theme.toml — GitHub Dark accents (rest follows terminal ANSI)
+[mgr]
+cwd     = { fg = "#58a6ff" }
+hovered = { bg = "#161b22" }
+[status]
+separator_style = { fg = "#30363d", bg = "#30363d" }
