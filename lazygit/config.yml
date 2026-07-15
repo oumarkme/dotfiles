@@ -1,8 +1,10 @@
+# ASCII icons (no Nerd Font needed). Colors use ANSI names -> the terminal's
+# dark palette, close to GitHub Dark on both terminals.
 gui:
-  nerdFontsVersion: "3"
+  nerdFontsVersion: ""
   showFileTree: true
   theme:
-    activeBorderColor:    ["#58a6ff", bold]
-    inactiveBorderColor:  ["#30363d"]
-    selectedLineBgColor:  ["#161b22"]
-    unstagedChangesColor: ["#f85149"]
+    activeBorderColor:    ["blue", bold]
+    inactiveBorderColor:  ["black"]
+    selectedLineBgColor:  ["black"]
+    unstagedChangesColor: ["red"]

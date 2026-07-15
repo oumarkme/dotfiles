@@ -5,9 +5,9 @@
 # ---- modern CLI ----
 export BAT_THEME="ansi"                    # bat/delta follow terminal ANSI colors
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
+# 16-ANSI palette: both terminals map these to GitHub Dark (no truecolor needed)
 export FZF_DEFAULT_OPTS="--height 40% --layout reverse --border \
-  --color=bg+:#161b22,fg+:#e6edf3,hl:#f85149,hl+:#f85149 \
-  --color=info:#bc8cff,prompt:#58a6ff,pointer:#58a6ff,border:#30363d"
+  --color=16,bg:-1,bg+:0,fg:7,fg+:15,hl:1,hl+:1,info:5,prompt:4,pointer:4,marker:2,border:8,header:8"
 
 command -v zoxide >/dev/null && eval "$(zoxide init bash)"    # `z <dir>` smart cd
 command -v fzf    >/dev/null && eval "$(fzf --bash)"          # Ctrl-T / Ctrl-R / Alt-C

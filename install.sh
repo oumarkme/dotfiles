@@ -46,12 +46,8 @@ if [[ "${1:-}" == "--packages" ]]; then
                yazi lazygit btop tree-sitter || \
     echo "   warn: one or more formulae failed — continuing to config linking (verify at end)"
   if [[ "$PLATFORM" == macos ]]; then
-    # font is a cask; bash is a formula — keep them separate.
-    # optional: a failure here must NOT abort config linking below.
-    brew install --cask font-jetbrains-mono-nerd-font || \
-      echo "   warn: nerd font cask failed — install manually later"
-    brew install bash || \
-      echo "   warn: bash formula failed — /bin/bash 3.2 will be used"
+    # bash is a formula (macOS default /bin/bash is 3.2). Non-fatal.
+    brew install bash || echo "   warn: bash formula failed — /bin/bash 3.2 will be used"
   fi
 fi
 
@@ -80,12 +76,11 @@ echo ">> lazygit / yazi"
 link lazygit/config.yml "$HOME/.config/lazygit/config.yml"
 link yazi/theme.toml    "$HOME/.config/yazi/theme.toml"
 
-# ---- ghostty (skip on WSL; Windows Terminal is used there) ----
-if [[ "$PLATFORM" != wsl ]]; then
-  echo ">> ghostty"
+# ---- terminal look: both terminals are themed by the user; nothing to set here.
+#      Tool colors use ANSI so they follow whatever GitHub Dark palette you set. ----
+if command -v ghostty >/dev/null && [[ "$PLATFORM" != wsl ]]; then
+  echo ">> ghostty config found — linking (optional)"
   link ghostty/config "$HOME/.config/ghostty/config"
-else
-  echo ">> WSL: paste windows-terminal/github-dark.json into Windows Terminal settings"
 fi
 
 # ---- neovim (LazyVim starter + our plugin files) ----
@@ -104,9 +99,8 @@ echo ">> done."
 [[ -d "$BACKUP_DIR" ]] && echo "   previous files backed up in: $BACKUP_DIR"
 cat <<'EOF'
 
-   Next:
-     1. Nerd Font: macOS/Ubuntu handled by --packages / your font step;
-        WSL — install JetBrainsMono NF on the *Windows* side and select it.
+   Next (no terminal setup needed — colors are painted by the configs):
+     1. Open a NEW terminal window/tab (so macOS picks up the dark profile).
      2. Open tmux, press  prefix + I  to install plugins.
      3. Open  nvim  once; let lazy.nvim finish, then :checkhealth.
      4. Verify:  for c in nvim tmux lazygit yazi delta bat eza fd rg zoxide btop; do command -v $c || echo MISSING $c; done

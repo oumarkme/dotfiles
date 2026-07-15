@@ -1,0 +1,34 @@
+See setup run notes. Fixed in install.sh:
+  - line 47 bug: `bash` was passed to `brew install --cask` (bash is a formula, not a cask).
+    -> split into `brew install --cask font-jetbrains-mono-nerd-font` and `brew install bash`.
+  - optional font/bash installs no longer abort the run (guarded with || warn).
+  - core `brew install` failures now warn and continue to config linking.
+  - `--quiet` reduces noise when re-running --packages on already-current formulae.
+
+Update (terminal-driven theming):
+  - macOS uses Terminal.app, WSL uses Windows Terminal.
+  - Terminal chrome (tmux/lazygit/yazi/fzf) switched to 16-ANSI so both terminals
+    render GitHub Dark identically (Terminal.app is 256-color; ANSI avoids the
+    truecolor-hex degradation). Neovim keeps the truecolor theme (full on Windows
+    Terminal incl. undercurl; approximated on Terminal.app).
+  - tmux: default-terminal is conditional (Apple_Terminal -> screen-256color,
+    else tmux-256color + RGB), plus a Smulx undercurl passthrough.
+  - Validated: tmux 3.4 parses tmux.conf and starts a session cleanly.
+
+Update (zero-manual / lowest-common-denominator):
+  - Target = 256-color baseline (Terminal.app), colors "close" not identical.
+  - Colors painted by configs (no terminal profile import): tmux/Neovim use hex
+    (approximated to 256 on Terminal.app, exact on Windows Terminal); lazygit/yazi/
+    fzf use ANSI (terminal's dark palette).
+  - Nerd Font dropped (ASCII icons): have_nerd_font=false, lazygit nerdFontsVersion="".
+    No terminal font needs setting.
+  - install.sh sets macOS Terminal.app to a dark default via AppleScript (one-time
+    macOS automation prompt may appear). Windows Terminal is dark by default.
+  - No manual terminal steps remain.
+
+Update (user themes both terminals):
+  - Removed macOS AppleScript auto-theming (user sets Terminal.app + Windows
+    Terminal themes manually).
+  - All tool colors are ANSI -> follow the user's GitHub Dark terminal palette
+    exactly on both terminals (tmux status reverted hex -> ANSI). Neovim keeps
+    truecolor on Windows Terminal, ANSI fallback on Terminal.app.

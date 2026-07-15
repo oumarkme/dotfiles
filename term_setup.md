@@ -2,7 +2,8 @@
 
 Stack: **bash + tmux + Neovim(LazyVim) + Claude Code**, plus `yazi`, `lazygit`,
 `delta`, `bat`, `fzf`, `ripgrep`, `fd`, `eza`, `zoxide`, `btop`.
-Theme: **GitHub Dark** everywhere. Font: **JetBrainsMono Nerd Font**.
+Theme: **GitHub Dark** — set by you in each terminal; the tools use ANSI so they
+follow that palette. Icons: ASCII (no Nerd Font required).
 
 > How to run: give this file to Claude Code —
 > *"Follow term_setup.md to set up this machine. Use the required order: first
@@ -99,29 +100,15 @@ Notes:
 
 ---
 
-## 3. Nerd Font (JetBrainsMono)
+## 3. Terminal look
 
-Icons in yazi/lazygit/Neovim require a Nerd Font v3.0+.
-
-```bash
-if [[ "$PLATFORM" == "macos" ]]; then
-  brew install --cask font-jetbrains-mono-nerd-font
-
-elif [[ "$PLATFORM" == "ubuntu" ]]; then
-  mkdir -p ~/.local/share/fonts && cd ~/.local/share/fonts
-  curl -fLO https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip
-  unzip -o JetBrainsMono.zip && rm JetBrainsMono.zip
-  fc-cache -f
-fi
-```
-
-**WSL is special**: the font must be installed on the **Windows** side (Windows
-Terminal renders the glyphs, not WSL). Manual step for the user:
-1. Download `JetBrainsMono.zip` from github.com/ryanoasis/nerd-fonts/releases/latest
-2. Extract, select all `.ttf`, right-click → *Install*
-3. Set it in Windows Terminal (see §9).
-
----
+Both terminals are themed (GitHub Dark) by you, so there is nothing to set here.
+The tools use ANSI colors, so tmux / lazygit / yazi / fzf follow your terminal's
+GitHub Dark palette exactly on both terminals. Neovim uses the truecolor GitHub
+theme on Windows Terminal (true color) and falls back to the terminal's ANSI
+palette on macOS Terminal.app (256-color). Icons are ASCII (no Nerd Font). Want
+glyph icons? install a Nerd Font, select it as the terminal font, and flip
+`have_nerd_font` / `nerdFontsVersion`.
 
 ## 4. Claude Code
 
@@ -191,9 +178,12 @@ set -g renumber-windows on
 set -sg escape-time 10
 set -g history-limit 50000          # Claude Code output is long
 
-# ---- true color ----
-set -g default-terminal "tmux-256color"
-set -as terminal-overrides ",*:RGB"
+# ---- color: true color where supported; macOS Terminal.app is 256-color only ----
+if-shell '[ "$TERM_PROGRAM" = "Apple_Terminal" ]' \
+  'set -g default-terminal "screen-256color"' \
+  'set -g default-terminal "tmux-256color" ; set -as terminal-overrides ",*:RGB"'
+# undercurl passthrough (renders on Windows Terminal; harmlessly ignored elsewhere)
+set -as terminal-overrides ',*:Smulx=\E[4::%p1%dm' 
 
 # ---- splits keep cwd ----
 bind | split-window -h -c "#{pane_current_path}"
@@ -205,19 +195,20 @@ bind g display-popup -w 90% -h 90% -E "lazygit"
 bind e display-popup -w 90% -h 90% -E "yazi"
 bind r source-file ~/.tmux.conf \; display "reloaded"
 
-# ---- GitHub Dark minimal status bar (top) ----
+# ---- status bar: 16-ANSI only (both terminals map ANSI 0-15 to GitHub Dark) ----
 set -g status-position top
 set -g status-justify left
-set -g status-style "bg=#0d1117,fg=#e6edf3"
-set -g status-left "#[bg=#58a6ff,fg=#0d1117,bold] #S #[bg=#0d1117] "
+set -g status-style "bg=default,fg=colour7"
+set -g status-left "#[fg=colour4,bold] #S #[fg=colour8]│#[default] "
 set -g status-left-length 30
-set -g status-right "#[fg=#8b949e]#{b:pane_current_path} #[fg=#6e7681]%H:%M "
-setw -g window-status-format "#[fg=#6e7681] #I #W "
-setw -g window-status-current-format "#[bg=#161b22,fg=#58a6ff,bold] #I #W "
+set -g status-right "#[fg=colour8]#{b:pane_current_path}  %H:%M "
+set -g status-right-length 60
+setw -g window-status-format "#[fg=colour8] #I #W "
+setw -g window-status-current-format "#[fg=colour4,bold] #I #W "
 setw -g window-status-separator ""
-set -g pane-border-style "fg=#30363d"
-set -g pane-active-border-style "fg=#58a6ff"
-set -g message-style "bg=#161b22,fg=#e6edf3"
+set -g pane-border-style "fg=colour8"
+set -g pane-active-border-style "fg=colour4"
+set -g message-style "bg=colour0,fg=colour7"
 
 # ---- plugins (TPM) ----
 set -g @plugin 'tmux-plugins/tpm'
@@ -284,6 +275,7 @@ return {
 Append to `lua/config/options.lua` (Nextflow filetype + quiet UI):
 
 ```lua
+vim.g.have_nerd_font = false   -- ASCII icons; no terminal Nerd Font needed
 vim.opt.laststatus = 3         -- single global statusline
 vim.opt.signcolumn = "yes"     -- no gutter jitter
 -- Nextflow has no LSP; treat .nf and nextflow.config as groovy for highlighting
@@ -297,23 +289,23 @@ vim.filetype.add({
 
 ```yaml
 gui:
-  nerdFontsVersion: "3"
+  nerdFontsVersion: ""
   showFileTree: true
   theme:
-    activeBorderColor:    ["#58a6ff", bold]
-    inactiveBorderColor:  ["#30363d"]
-    selectedLineBgColor:  ["#161b22"]
-    unstagedChangesColor: ["#f85149"]
+    activeBorderColor:    ["blue", bold]
+    inactiveBorderColor:  ["black"]
+    selectedLineBgColor:  ["black"]
+    unstagedChangesColor: ["red"]
 ```
 
 ### 6.4 `~/.config/yazi/theme.toml`
 
 ```toml
 [mgr]
-cwd     = { fg = "#58a6ff" }
-hovered = { bg = "#161b22" }
+cwd     = { fg = "blue" }
+hovered = { bg = "darkgray" }
 [status]
-separator_style = { fg = "#30363d", bg = "#30363d" }
+separator_style = { fg = "darkgray", bg = "darkgray" }
 ```
 
 ### 6.5 git + delta (append to `~/.gitconfig`)
@@ -338,8 +330,7 @@ separator_style = { fg = "#30363d", bg = "#30363d" }
 export BAT_THEME="ansi"                    # bat/delta follow terminal ANSI colors
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
 export FZF_DEFAULT_OPTS="--height 40% --layout reverse --border \
-  --color=bg+:#161b22,fg+:#e6edf3,hl:#f85149,hl+:#f85149 \
-  --color=info:#bc8cff,prompt:#58a6ff,pointer:#58a6ff,border:#30363d"
+  --color=16,bg:-1,bg+:0,fg:7,fg+:15,hl:1,hl+:1,info:5,prompt:4,pointer:4,marker:2,border:8,header:8"
 eval "$(zoxide init bash)"                 # `z <dir>` smart cd
 eval "$(fzf --bash)"                       # Ctrl-T / Ctrl-R / Alt-C keybindings
 alias ls='eza --group-directories-first'
@@ -368,40 +359,11 @@ dev() {
 
 ## 7. Terminal emulator + GitHub Dark theme
 
-### macOS / native Ubuntu — Ghostty
+### Terminal look
 
-`~/.config/ghostty/config`:
-
-```ini
-theme = GitHub-Dark
-font-family = JetBrainsMono Nerd Font
-font-size = 14
-window-padding-x = 8
-window-padding-y = 6
-```
-
-### WSL — Windows Terminal
-
-Add this scheme to the `"schemes"` array in Windows Terminal `settings.json`,
-then set the Ubuntu profile's `"colorScheme": "GitHub Dark"` and font
-`"JetBrainsMono Nerd Font"`:
-
-```json
-{
-  "name": "GitHub Dark",
-  "background": "#0d1117", "foreground": "#e6edf3",
-  "cursorColor": "#e6edf3", "selectionBackground": "#264f78",
-  "black": "#484f58",  "red": "#ff7b72",  "green": "#3fb950",
-  "yellow": "#d29922", "blue": "#58a6ff", "purple": "#bc8cff",
-  "cyan": "#39c5cf",   "white": "#b1bac4",
-  "brightBlack": "#6e7681",  "brightRed": "#ffa198",
-  "brightGreen": "#56d364",  "brightYellow": "#e3b341",
-  "brightBlue": "#79c0ff",   "brightPurple": "#d2a8ff",
-  "brightCyan": "#56d4dd",   "brightWhite": "#ffffff"
-}
-```
-
----
+Both terminals are themed by you; nothing to set. Tool colors are ANSI, so they
+follow your GitHub Dark palette on both. (Optional exact Windows Terminal palette:
+`windows-terminal/github-dark.json`.)
 
 ## 8. First launch & verification
 
@@ -437,8 +399,9 @@ Rscript -e 'install.packages("languageserver", repos="https://cran.r-project.org
 - **Neovim version**: LazyVim requires >= 0.11.2. If `nvim --version` is lower,
   the apt package leaked onto PATH — use the Homebrew `nvim` (`brew link neovim`)
   or the official tarball.
-- **WSL font**: installing the Nerd Font *inside* WSL does nothing; it must be on
-  Windows and selected in Windows Terminal (§3, §7).
+- **Fonts/icons**: none required — icons are ASCII. If you later opt into a Nerd
+  Font, on WSL it must be installed on the *Windows* side and selected in Windows
+  Terminal (installing it inside WSL does nothing).
 - **macOS bash**: `/bin/bash` is 3.2. `brew install bash` gives 5.x; tmux uses
   whatever `bash` resolves first on PATH via `default-command bash`.
 - **REPL workflow**: open R or Python in one tmux pane, edit in Neovim in another,
