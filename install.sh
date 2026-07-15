@@ -42,9 +42,17 @@ if [[ "${1:-}" == "--packages" ]]; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   eval "$([[ "$PLATFORM" == macos ]] && /opt/homebrew/bin/brew shellenv \
         || /home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-  brew install tmux neovim git fzf ripgrep fd bat eza zoxide git-delta \
-               yazi lazygit btop tree-sitter
-  [[ "$PLATFORM" == macos ]] && brew install --cask font-jetbrains-mono-nerd-font bash
+  brew install --quiet tmux neovim git fzf ripgrep fd bat eza zoxide git-delta \
+               yazi lazygit btop tree-sitter || \
+    echo "   warn: one or more formulae failed — continuing to config linking (verify at end)"
+  if [[ "$PLATFORM" == macos ]]; then
+    # font is a cask; bash is a formula — keep them separate.
+    # optional: a failure here must NOT abort config linking below.
+    brew install --cask font-jetbrains-mono-nerd-font || \
+      echo "   warn: nerd font cask failed — install manually later"
+    brew install bash || \
+      echo "   warn: bash formula failed — /bin/bash 3.2 will be used"
+  fi
 fi
 
 # ---- tmux ----
